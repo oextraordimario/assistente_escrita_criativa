@@ -1,0 +1,45 @@
+{
+  "Natureza": [
+    "folhagem",
+    "raízes",
+    "copa",
+    "tronco",
+    "frutos",
+    "flores"
+  ],
+  "Ciclo da Vida": [
+    "crescimento",
+    "sazonalidade",
+    "transformação",
+    "regeneração",
+    "entalhadura"
+  ],
+  "Simbolismo": [
+    "sabedoria",
+    "força",
+    "ancestralidade",
+    "renovação",
+    "conexão"
+  ],
+  "Ecossistema": [
+    "habitat",
+    "sombra",
+    "nutrientes",
+    "biodiversidade",
+    "suporte"
+  ],
+  "Estações do Ano": [
+    "primavera",
+    "verão",
+    "outono",
+    "inverno",
+    "transição"
+  ],
+  "Elementos Visuais": [
+    "textura",
+    "cor",
+    "luz",
+    "silueta",
+    "movimento"
+  ]
+}
