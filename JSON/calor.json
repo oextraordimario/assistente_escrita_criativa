@@ -1,0 +1,35 @@
+{
+  "Natureza": [
+    "Sol",
+    "Verão",
+    "Brisa",
+    "Praia",
+    "Deserto",
+    "Chama"
+  ],
+  "Emoções": [
+    "Paixão",
+    "Intensidade",
+    "Alegria",
+    "Conforto",
+    "Calor humano"
+  ],
+  "Cultura e Tradição": [
+    "Fogos de artifício",
+    "Festival",
+    "Fogueira",
+    "Churrasco"
+  ],
+  "Sensações Físicas": [
+    "Suor",
+    "Abraço",
+    "Toque morno",
+    "Relaxamento"
+  ],
+  "Cores e Imagens": [
+    "Verão dourado",
+    "Luz alaranjada",
+    "Chama vermelha",
+    "Pôr do sol"
+  ]
+}
