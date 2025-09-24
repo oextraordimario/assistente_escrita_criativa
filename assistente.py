@@ -12,6 +12,7 @@ from datetime import datetime
 import threading
 import dspy
 from dotenv import load_dotenv
+import glob
 
 class MindMapVisualizer:
     def __init__(self):
@@ -117,6 +118,9 @@ class MindMapVisualizer:
         # Load JSON button
         ttk.Button(sidebar_frame, text="Carregar JSON", 
                   command=self.load_json_file).pack(pady=(20, 5), fill=tk.X)
+        
+        # Load latest prompt after all UI elements are created
+        self.load_latest_prompt()
     
     def setup_canvas_area(self, parent):
         """Create the right canvas area for mind map display"""
@@ -138,6 +142,35 @@ class MindMapVisualizer:
                     transform=self.ax.transAxes, ha='center', va='center',
                     fontsize=16, color='gray')
         self.canvas.draw()
+    
+    def load_latest_prompt(self):
+        """Load the latest .md file from prompts folder into the prompt text box"""
+        try:
+            # Get all .md files in prompts folder
+            md_files = glob.glob("prompts/*.md")
+            
+            if md_files:
+                # Sort by modification time (newest first)
+                latest_file = max(md_files, key=os.path.getmtime)
+                
+                # Read and load the content
+                with open(latest_file, "r", encoding="utf-8") as f:
+                    content = f.read()
+                
+                # Clear and insert content into text box
+                self.prompt_text.delete("1.0", tk.END)
+                self.prompt_text.insert("1.0", content)
+                
+                # Update status
+                filename = os.path.basename(latest_file)
+                self.status_label.config(text=f"Prompt carregado: {filename}", foreground='blue')
+            else:
+                # No .md files found
+                self.status_label.config(text="Nenhum prompt encontrado", foreground='gray')
+                
+        except Exception as e:
+            print(f"Error loading latest prompt: {e}")
+            self.status_label.config(text="Erro ao carregar prompt", foreground='red')
     
     def on_send_click(self):
         """Handle send button click"""
