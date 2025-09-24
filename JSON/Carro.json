@@ -1,0 +1,42 @@
+{
+  "Natureza e Elementos": [
+    "estrada",
+    "viagem",
+    "velocidade",
+    "vento",
+    "motor",
+    "pneus"
+  ],
+  "Tecnologia e Inovação": [
+    "automação",
+    "elétrico",
+    "sustentabilidade",
+    "inteligência artificial",
+    "design",
+    "futuro"
+  ],
+  "Aventura e Liberdade": [
+    "exploração",
+    "horizonte",
+    "descoberta",
+    "independência",
+    "paisagem",
+    "escapada"
+  ],
+  "Cotidiano e Rotina": [
+    "trânsito",
+    "trajeto",
+    "commuting",
+    "cidade",
+    "rua",
+    "cotidiano"
+  ],
+  "Romance e Nostalgia": [
+    "nostalgia",
+    "memórias",
+    "primeiro carro",
+    "viagem a dois",
+    "passeio",
+    "recordação"
+  ]
+}

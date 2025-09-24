@@ -13,6 +13,7 @@ import threading
 import dspy
 from dotenv import load_dotenv
 import glob
+import textwrap
 
 class MindMapVisualizer:
     def __init__(self):
@@ -329,7 +330,7 @@ class MindMapVisualizer:
                 self.G.add_edge(category, str(items))
     
     def calculate_positions(self, central_node):
-        """Calculate optimal positions for nodes"""
+        """Calculate optimal positions for nodes with proper spacing"""
         self.pos = {}
         
         # Central node at origin
@@ -342,8 +343,8 @@ class MindMapVisualizer:
         if num_categories == 0:
             return
         
-        # Position categories in a circle around central node
-        category_radius = 3
+        # Position categories in a circle around central node with increased radius for spacing
+        category_radius = 4  # Increased from 3 to 4 for more spacing
         for i, category in enumerate(categories):
             angle = 2 * math.pi * i / num_categories
             x = category_radius * math.cos(angle)
@@ -355,9 +356,9 @@ class MindMapVisualizer:
             num_leaves = len(leaves)
             
             if num_leaves > 0:
-                leaf_radius = 2
+                leaf_radius = 2.5  # Increased from 2 to 2.5 for more spacing
                 # Calculate the angular span for this category's leaves
-                angular_span = math.pi / 3  # 60 degrees total span
+                angular_span = math.pi / 2.5  # Reduced from pi/3 to pi/2.5 for wider spread
                 
                 for j, leaf in enumerate(leaves):
                     if num_leaves == 1:
@@ -369,6 +370,23 @@ class MindMapVisualizer:
                     leaf_x = x + leaf_radius * math.cos(leaf_angle)
                     leaf_y = y + leaf_radius * math.sin(leaf_angle)
                     self.pos[leaf] = (leaf_x, leaf_y)
+    
+    def wrap_text(self, text, max_chars_per_line):
+        """Wrap text to fit within specified character limit per line"""
+        return textwrap.fill(text, width=max_chars_per_line)
+    
+    def get_text_dimensions(self, text, font_size):
+        """Estimate text dimensions for proper box sizing"""
+        lines = text.split('\n')
+        max_chars = max(len(line) for line in lines) if lines else 0
+        num_lines = len(lines)
+        
+        # Rough estimation: each character is about 0.6 * font_size wide
+        # each line is about 1.2 * font_size tall
+        width = max_chars * font_size * 0.06
+        height = num_lines * font_size * 0.12
+        
+        return width, height
     
     def visualize_mindmap(self, data, central_node):
         """Create and display the mind map visualization"""
@@ -393,37 +411,47 @@ class MindMapVisualizer:
             y_values = [self.pos[edge[0]][1], self.pos[edge[1]][1]]
             self.ax.plot(x_values, y_values, 'gray', alpha=0.6, linewidth=2, zorder=1)
         
-        # Draw nodes
+        # Draw nodes with proper text wrapping and sizing
         for node, (x, y) in self.pos.items():
             node_data = self.G.nodes[node]
             node_type = node_data.get('node_type', 'leaf')
             
-            # Set node properties based on type
+            # Set node properties based on type and wrap text
             if node_type == 'central':
-                size = 1.5
+                wrapped_text = self.wrap_text(node, 15)  # 15 chars per line for central
+                base_width, base_height = 2.0, 0.8
                 color = '#2C3E50'
                 text_color = 'white'
                 font_size = 14
                 font_weight = 'bold'
             elif node_type == 'category':
-                size = 1.0
+                wrapped_text = self.wrap_text(node, 12)  # 12 chars per line for categories
+                base_width, base_height = 1.6, 0.6
                 color_index = node_data.get('color_index', 0)
                 color = self.colors[color_index]
                 text_color = 'white'
                 font_size = 11
                 font_weight = 'bold'
             else:  # leaf
-                size = 0.7
+                wrapped_text = self.wrap_text(node, 10)  # 10 chars per line for leaves
+                base_width, base_height = 1.2, 0.5
                 color_index = node_data.get('color_index', 0)
                 color = self.colors[color_index]
                 text_color = 'white'
                 font_size = 9
                 font_weight = 'normal'
             
+            # Calculate actual dimensions based on wrapped text
+            text_width, text_height = self.get_text_dimensions(wrapped_text, font_size)
+            
+            # Use the larger of base size or text size, with some padding
+            box_width = max(base_width, text_width + 0.4)
+            box_height = max(base_height, text_height + 0.3)
+            
             # Create node background
             bbox = FancyBboxPatch(
-                (x - size/2, y - size/4),
-                size, size/2,
+                (x - box_width/2, y - box_height/2),
+                box_width, box_height,
                 boxstyle="round,pad=0.1",
                 facecolor=color,
                 edgecolor='white',
@@ -432,8 +460,8 @@ class MindMapVisualizer:
             )
             self.ax.add_patch(bbox)
             
-            # Add text
-            self.ax.text(x, y, node, ha='center', va='center',
+            # Add wrapped text
+            self.ax.text(x, y, wrapped_text, ha='center', va='center',
                         fontsize=font_size, fontweight=font_weight,
                         color=text_color, zorder=3,
                         bbox=dict(boxstyle="round,pad=0.05", 
@@ -441,6 +469,17 @@ class MindMapVisualizer:
         
         # Set title
         self.ax.set_title(f'Mapa Mental: {central_node}', fontsize=18, fontweight='bold', pad=20)
+        
+        # Adjust plot limits to ensure all nodes are visible with padding
+        if self.pos:
+            x_coords = [pos[0] for pos in self.pos.values()]
+            y_coords = [pos[1] for pos in self.pos.values()]
+            
+            x_margin = (max(x_coords) - min(x_coords)) * 0.2 + 2
+            y_margin = (max(y_coords) - min(y_coords)) * 0.2 + 2
+            
+            self.ax.set_xlim(min(x_coords) - x_margin, max(x_coords) + x_margin)
+            self.ax.set_ylim(min(y_coords) - y_margin, max(y_coords) + y_margin)
         
         # Refresh canvas
         self.canvas.draw()
